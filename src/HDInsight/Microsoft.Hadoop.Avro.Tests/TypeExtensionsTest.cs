@@ -17,6 +17,7 @@ namespace Microsoft.Hadoop.Avro.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -25,6 +26,16 @@ namespace Microsoft.Hadoop.Avro.Tests
         [TestMethod]
         public void CanBeKnownTypeOfTest()
         {
+            // Object itself could not be known type of any type
+            Assert.IsFalse(typeof(object).CanBeKnownTypeOf(typeof(int)));
+            Assert.IsTrue(typeof(int).CanBeKnownTypeOf(typeof(object)));
+            Assert.IsFalse(typeof(object).CanBeKnownTypeOf(typeof(object)));
+
+            Assert.IsTrue(typeof(List<int>).CanBeKnownTypeOf(typeof(IEnumerable<int>)));
+            Assert.IsTrue(typeof(Collection<int>).CanBeKnownTypeOf(typeof(IEnumerable<int>)));
+            Assert.IsTrue(typeof(int[]).CanBeKnownTypeOf(typeof(IEnumerable<int>)));
+
+            Assert.IsFalse(typeof(IEnumerable<int>).CanBeKnownTypeOf(typeof(IEnumerable<int>)));
             Assert.IsFalse(typeof(IEnumerable<int>).CanBeKnownTypeOf(typeof(IEnumerable<string>)));
             Assert.IsFalse(typeof(IEnumerable<int>).CanBeKnownTypeOf(typeof(IEnumerable<Guid>)));
             Assert.IsFalse(typeof(IEnumerable<int>).CanBeKnownTypeOf(typeof(IEnumerable<IListClass>)));

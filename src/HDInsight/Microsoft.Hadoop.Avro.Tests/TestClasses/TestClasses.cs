@@ -16,6 +16,7 @@ namespace Microsoft.Hadoop.Avro.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
@@ -1184,6 +1185,62 @@ namespace Microsoft.Hadoop.Avro.Tests
             return new ClassOfListOfGuid
             {
                 ListOfGuid = Utilities.GetRandom<List<Guid>>(nullablesAreNulls),
+            };
+        }
+    }
+
+    [DataContract]
+    [KnownType(typeof(int))]
+    [KnownType(typeof(string))]
+    [KnownType(typeof(Guid))]
+    [KnownType(typeof(ClassOfInt))]
+    [KnownType(typeof(List<ClassOfInt>))]
+    [KnownType(typeof(Collection<ClassOfInt>))]
+    [KnownType(typeof(IList<ClassOfInt>))]
+    [KnownType(typeof(Dictionary<string, ClassOfInt>))]
+    public class ClassOfObjectDictionary : IEquatable<ClassOfObjectDictionary>
+    {
+        [DataMember]
+        internal Dictionary<string, object> PatchSet;
+
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as ClassOfObjectDictionary);
+        }
+
+        public bool Equals(ClassOfObjectDictionary other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return Utilities.GeneratedTypesEquality(this, other);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.PatchSet.GetHashCode();
+        }
+
+        public static ClassOfObjectDictionary Create()
+        {
+            var list = new List<ClassOfInt>();
+            list.Add(ClassOfInt.Create(false));
+            var dictionary = new Dictionary<string, ClassOfInt>();
+            dictionary.Add("TestKey", ClassOfInt.Create(false));
+
+            return new ClassOfObjectDictionary
+            {
+                PatchSet = new Dictionary<string, object>()
+                {
+                     { "Name", "OData" },
+                     { "Age", 15 },
+                     { "Key", new Guid() },
+                     { "ClassOfIntReference", ClassOfInt.Create(false) },
+                     { "ClassOfIntReferenceArray", list },
+                     { "ClassOfIntReferenceMap", dictionary }
+                },
             };
         }
     }
