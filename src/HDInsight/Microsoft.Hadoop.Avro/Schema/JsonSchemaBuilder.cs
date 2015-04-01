@@ -145,7 +145,7 @@ namespace Microsoft.Hadoop.Avro.Schema
                     case Token.Map:
                         return this.ParseMapType(token, parent, namedSchemas);
                     case Token.Fixed:
-                        return this.ParseFixedType(token, parent);
+                        return this.ParseFixedType(token, parent, namedSchemas);
                     default:
                         throw new SerializationException(
                             string.Format(CultureInfo.InvariantCulture, "Invalid type specified: '{0}'.", type));
@@ -173,7 +173,6 @@ namespace Microsoft.Hadoop.Avro.Schema
         /// <exception cref="System.Runtime.Serialization.SerializationException">Thrown when union schema type is invalid.</exception>
         private TypeSchema ParseUnionType(JArray unionToken, NamedSchema parent, Dictionary<string, NamedSchema> namedSchemas)
         {
-            var types = new HashSet<string>();
             var schemas = new List<TypeSchema>();
             foreach (var typeAlternative in unionToken.Children())
             {
@@ -184,13 +183,12 @@ namespace Microsoft.Hadoop.Avro.Schema
                         string.Format(CultureInfo.InvariantCulture, "Union schemas cannot be nested:'{0}'.", unionToken));
                 }
 
-                if (types.Contains(schema.Type))
+                if (schemas.Any(s => UnionSchema.IsSameTypeAs(s, schema)))
                 {
                     throw new SerializationException(
                         string.Format(CultureInfo.InvariantCulture, "Unions cannot contains schemas of the same type: '{0}'.", schema.Type));
                 }
 
-                types.Add(schema.Type);
                 schemas.Add(schema);
             }
 
@@ -415,7 +413,7 @@ namespace Microsoft.Hadoop.Avro.Schema
             return result;
         }
 
-        private FixedSchema ParseFixedType(JObject type, NamedSchema parent)
+        private FixedSchema ParseFixedType(JObject type, NamedSchema parent, Dictionary<string, NamedSchema> namedSchemas)
         {
             var name = type.RequiredProperty<string>(Token.Name);
             var nspace = this.GetNamespace(type, parent, name);
@@ -433,6 +431,9 @@ namespace Microsoft.Hadoop.Avro.Schema
 
             var customAttributes = type.GetAttributesNotIn(StandardProperties.Record);
             var result = new FixedSchema(attributes, size, typeof(byte[]), customAttributes);
+
+            namedSchemas.Add(result.FullName, result);
+
             return result;
         }
 

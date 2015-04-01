@@ -1387,6 +1387,123 @@ namespace Microsoft.Hadoop.Avro.Tests
             RoundTripSerializationWithCheck(expected);
         }
 
+        [TestMethod]
+        [TestCategory("CheckIn")]
+        public void Serializer_SerializeClassOfUnion()
+        {
+            // support multiple collections type as known types.
+            var serializer = AvroSerializer.Create<ClassOfUnion>();
+            var deserializer = AvroSerializer.CreateDeserializerOnly<ClassOfUnion>(serializer.WriterSchema.ToString(), new AvroSerializerSettings());
+
+            // check for ClassOfUnion
+            var expected = ClassOfUnion.Create();
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+        }
+
+        [TestMethod]
+        [TestCategory("CheckIn")]
+        public void Serializer_SerializeClassWith2ArrayMapKnownTypes()
+        {
+            var serializer = AvroSerializer.Create<ClassOfUnionWith2ArrayAndMap>();
+            var deserializer = AvroSerializer.CreateDeserializerOnly<ClassOfUnionWith2ArrayAndMap>(serializer.WriterSchema.ToString(), new AvroSerializerSettings());
+
+            // check for ClassOfUnionWith2ArrayAndMap
+            var expected = ClassOfUnionWith2ArrayAndMap.Create();
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+        }
+
+        [TestMethod]
+        [TestCategory("CheckIn")]
+        public void Serializer_SerializeClassOfUnionWith2SameArrayAndMap()
+        {
+            //  according to avro spec http://avro.apache.org/docs/current/spec.html#Unions
+            //  Unions may not contain more than one schema with the same type, except for the named types record, fixed and enum. 
+            //  For example, unions containing two array types or two map types are not permitted, but two types with different names are permitted                                    
+            var serializer = AvroSerializer.Create<ClassOfUnionWith2SameArrayAndMap>();
+            string schema = serializer.WriterSchema.ToString();
+            
+            // assert the actual schema only contains 1 int array and 1 int map, to be compliance with avro spec.
+            const string expectedSchema = 
+                @"{""type"":""record"","+
+                @"""name"":""Microsoft.Hadoop.Avro.Tests.TestClasses.ClassOfUnionWith2SameArrayAndMap"","+
+                @"""fields"":[{""name"":""IntArray"",""type"":[{""type"":""array"",""items"":""int""},""null""]},"+
+                @"{""name"":""IntMap"",""type"":[{""type"":""map"",""values"":""int""},""null""]}]}";
+            Assert.AreEqual(expectedSchema, schema);
+
+            var deserializer = AvroSerializer.CreateDeserializerOnly<ClassOfUnionWith2SameArrayAndMap>(schema, new AvroSerializerSettings());
+
+            // check to ensure this class could be deserialize correctly.
+            var expected = ClassOfUnionWith2SameArrayAndMap.Create();
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+        }
+
+        [TestMethod]
+        [TestCategory("CheckIn")]
+        public void Serializer_SerializeClassWithGenericMemberHavingMultipleMatchingKnownTypes()
+        {
+            // support multiple collections type as known types.
+            var knownTypes = new[] {typeof (List<string>), typeof (string[]), typeof (Collection<string>)};
+            var serializer = AvroSerializer.Create<IEnumerableClass<string>>(new AvroSerializerSettings() {KnownTypes = knownTypes });
+            var deserializer = AvroSerializer.CreateDeserializerOnly<IEnumerableClass<string>>(serializer.WriterSchema.ToString(), new AvroSerializerSettings() { KnownTypes = knownTypes });
+
+            // check for array
+            var expected = IEnumerableClass<string>.Create(new [] { "aaa", "bbb", "ccc" });
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+
+            // check for list
+            expected = IEnumerableClass<string>.Create(new List<string> { "aaa", "bbb", "ccc" });
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+
+            // check for collection
+            expected = IEnumerableClass<string>.Create(new Collection<string> { "aaa", "bbb", "ccc" });
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+        }
+
+        [TestMethod]
+        public void UnionSchema_TestIsSameTypeAs()
+        {
+            TypeSchema intArray1 = new ArraySchema(new IntSchema(typeof(int)), typeof(int[]));
+            TypeSchema intArray2 = new ArraySchema(new IntSchema(typeof(int)), typeof(int[]));
+            Assert.IsTrue(UnionSchema.IsSameTypeAs(intArray1, intArray2));
+
+            TypeSchema stringArray = new ArraySchema(new StringSchema(typeof(string)), typeof(string[]));
+            Assert.IsFalse(UnionSchema.IsSameTypeAs(intArray1, stringArray));
+
+            TypeSchema intMap1 = new MapSchema(new IntSchema(typeof(int)), new IntSchema(typeof(int)), typeof(Dictionary<int, int>));
+            TypeSchema intMap2 = new MapSchema(new IntSchema(typeof(int)), new IntSchema(typeof(int)), typeof(Dictionary<int, int>));
+            Assert.IsTrue(UnionSchema.IsSameTypeAs(intMap1, intMap2));
+
+            TypeSchema stringMap = new MapSchema(new StringSchema(typeof(string)), new StringSchema(typeof(string)), typeof(Dictionary<string, string>));
+            Assert.IsFalse(UnionSchema.IsSameTypeAs(intMap1, stringMap));
+
+            Assert.IsFalse(UnionSchema.IsSameTypeAs(stringArray, stringMap));
+        }
+
+        [TestMethod]
+        [TestCategory("CheckIn")]
+        public void Serializer_ClassOfObjectDictionary()
+        {
+            var resolver = new AvroCustomContractResolver();
+            var settings = new AvroSerializerSettings() {Resolver = resolver};
+            var serializer = AvroSerializer.Create<ClassOfObjectDictionary>(settings);
+            var deserializer = AvroSerializer.CreateDeserializerOnly<ClassOfObjectDictionary>(serializer.WriterSchema.ToString(), settings);
+
+            var expected = ClassOfObjectDictionary.Create();
+            RoundTripSerializationWithCheck(serializer, deserializer, expected);
+        }
+
+        private void RoundTripSerializationWithCheck<TS>(IAvroSerializer<TS> serializer, IAvroSerializer<TS> deserializer, TS serialized)
+        {
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(stream, serialized);
+                stream.Seek(0, SeekOrigin.Begin);
+                var actual = deserializer.Deserialize(stream);
+
+                Assert.AreEqual(serialized, actual);
+            }
+        }
+
         #endregion //AvroUnion tests
     }
 }
