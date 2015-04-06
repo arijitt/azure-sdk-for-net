@@ -20,7 +20,9 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
     using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.Data;
     using Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.Data.Rdfe;
@@ -153,7 +155,7 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                 var iaasCluster = PayloadConverterIaasClusters.ConvertToIaasCluster(clusterCreateParameters, this.credentials.SubscriptionId.ToString());
                 var rdfeResource = PayloadConverterIaasClusters.CreateRdfeResource(iaasCluster, schemaVersion);
 
-                await
+                var resp = await
                     this.rdfeRestClient.CreateCluster(
                         this.credentials.SubscriptionId.ToString(),
                         this.GetCloudServiceName(clusterCreateParameters.Location),
@@ -161,6 +163,14 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                         clusterCreateParameters.Name,
                         rdfeResource,
                         this.Context.CancellationToken);
+
+                // Retrieve the request id (or operation id) from the PUT Response. The request id will be used to poll on operation status.
+                string requestId = resp.Headers.GetValues("x-ms-request-id").First();
+
+                // Wait for the operation specified by the request id to complete (succeed or fail).
+                TimeSpan interval = TimeSpan.FromSeconds(1);
+                TimeSpan timeout = TimeSpan.FromMinutes(5);
+                await WaitForRdfeOperationToComplete(requestId, interval, timeout);
             }
             catch (InvalidExpectedStatusCodeException iEx)
             {
@@ -554,7 +564,7 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                     // Ignore all exceptions. We don't want ListContainers to fail on customers for whatever reason.
                     // If there is an issue with obtaining details about the cluster, mark the cluster in Error state with a generic error message
 
-                    clusterDetails.State = ClusterState.Error;
+                    clusterDetails.State = HDInsight.ClusterState.Error;
                     if (clusterDetails.Error != null && string.IsNullOrEmpty(clusterDetails.Error.Message))
                     {
                         clusterDetails.Error.Message = "Unexpected error occurred. Could not retrieve details about the cluster.";
@@ -574,6 +584,22 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                 throw new HttpLayerException(response.Error.StatusCode, response.Error.ErrorMessage);
             }
             return (T)response.Data;
+        }
+
+        private async Task WaitForRdfeOperationToComplete(string requestId, TimeSpan interval, TimeSpan timeout)
+        {
+            Operation operation = null;
+            DateTime startTime = DateTime.Now;
+            do
+            {
+                operation = await this.rdfeRestClient.GetOperationStatus(
+                    this.credentials.SubscriptionId.ToString(),
+                    requestId,
+                    this.Context.CancellationToken);
+
+                Thread.Sleep(interval.Milliseconds);
+            }
+            while (operation.Status == OperationStatus.InProgress && (DateTime.Now - startTime < timeout));
         }
 
         #endregion
