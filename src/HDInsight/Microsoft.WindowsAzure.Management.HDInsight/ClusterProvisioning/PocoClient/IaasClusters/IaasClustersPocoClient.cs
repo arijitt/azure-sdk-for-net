@@ -586,15 +586,20 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
             return (T)response.Data;
         }
 
-        private async Task WaitForRdfeOperationToComplete(string requestId, TimeSpan interval, TimeSpan timeout)
+        private async Task WaitForRdfeOperationToComplete(string operationId, TimeSpan interval, TimeSpan timeout)
         {
+            if (String.IsNullOrEmpty(operationId))
+            {
+                throw new ArgumentException("Operation Id cannot be null or empty");
+            }
+
             Operation operation = null;
             DateTime startTime = DateTime.Now;
             do
             {
                 operation = await this.rdfeRestClient.GetOperationStatus(
                     this.credentials.SubscriptionId.ToString(),
-                    requestId,
+                    operationId,
                     this.Context.CancellationToken);
 
                 Thread.Sleep(interval.Milliseconds);
