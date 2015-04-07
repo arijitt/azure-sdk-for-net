@@ -164,13 +164,20 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                         rdfeResource,
                         this.Context.CancellationToken);
 
-                // Retrieve the request id (or operation id) from the PUT Response. The request id will be used to poll on operation status.
-                string requestId = resp.Headers.GetValues("x-ms-request-id").First();
+                IEnumerable<String> requestIds;
+                if (resp.Headers.TryGetValues("x-ms-request-id", out requestIds))
+                {
+                    Guid operationId;
+                    if (!Guid.TryParse(requestIds.First(), out operationId))
+                    {
+                        throw new InvalidOperationException("Could not retrieve a valid operation id for the PUT (cluster create) operation.");
+                    }
 
-                // Wait for the operation specified by the request id to complete (succeed or fail).
-                TimeSpan interval = TimeSpan.FromSeconds(1);
-                TimeSpan timeout = TimeSpan.FromMinutes(5);
-                await WaitForRdfeOperationToComplete(requestId, interval, timeout);
+                    // Wait for the operation specified by the request id to complete (succeed or fail).
+                    TimeSpan interval = TimeSpan.FromSeconds(1);
+                    TimeSpan timeout = TimeSpan.FromMinutes(5);
+                    await this.WaitForRdfeOperationToComplete(operationId, interval, timeout, Context.CancellationToken);
+                }
             }
             catch (InvalidExpectedStatusCodeException iEx)
             {
@@ -326,6 +333,15 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                 string content = iEx.Response.Content != null ? iEx.Response.Content.ReadAsStringAsync().Result : string.Empty;
                 throw new HttpLayerException(iEx.ReceivedStatusCode, content);
             }
+        }
+
+        /// <inheritdoc />
+        public async Task<Operation> GetRdfeOperationStatus(Guid operationId)
+        {
+            return await this.rdfeRestClient.GetRdfeOperationStatus(
+                    this.credentials.SubscriptionId.ToString(),
+                    operationId.ToString(),
+                    this.Context.CancellationToken);
         }
 
         public void Dispose()
@@ -584,27 +600,6 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                 throw new HttpLayerException(response.Error.StatusCode, response.Error.ErrorMessage);
             }
             return (T)response.Data;
-        }
-
-        private async Task WaitForRdfeOperationToComplete(string operationId, TimeSpan interval, TimeSpan timeout)
-        {
-            if (String.IsNullOrEmpty(operationId))
-            {
-                throw new ArgumentException("Operation Id cannot be null or empty");
-            }
-
-            Operation operation = null;
-            DateTime startTime = DateTime.Now;
-            do
-            {
-                operation = await this.rdfeRestClient.GetOperationStatus(
-                    this.credentials.SubscriptionId.ToString(),
-                    operationId,
-                    this.Context.CancellationToken);
-
-                Thread.Sleep(interval.Milliseconds);
-            }
-            while (operation.Status == OperationStatus.InProgress && (DateTime.Now - startTime < timeout));
         }
 
         #endregion

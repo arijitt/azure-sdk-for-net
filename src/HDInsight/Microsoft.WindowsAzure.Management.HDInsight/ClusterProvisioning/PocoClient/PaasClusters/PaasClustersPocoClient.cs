@@ -332,7 +332,7 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                 var wireCreateParameters = PayloadConverterClusters.CreateWireClusterCreateParametersFromUserType(clusterCreateParameters);
                 var rdfeResourceInputFromWireInput = PayloadConverterClusters.CreateRdfeResourceInputFromWireInput(wireCreateParameters, SchemaVersionUtils.GetSchemaVersion(this.capabilities));
 
-                await
+                var resp = await
                     this.rdfeClustersRestClient.CreateCluster(
                         this.credentials.SubscriptionId.ToString(),
                         this.GetCloudServiceName(clusterCreateParameters.Location),
@@ -340,6 +340,22 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                         clusterCreateParameters.Name,
                         rdfeResourceInputFromWireInput,
                         this.Context.CancellationToken);
+
+                // Retrieve the request id (or operation id) from the PUT Response. The request id will be used to poll on operation status.
+                IEnumerable<String> requestIds;
+                if (resp.Headers.TryGetValues("x-ms-request-id", out requestIds))
+                {
+                    Guid operationId;
+                    if (!Guid.TryParse(requestIds.First(), out operationId))
+                    {
+                        throw new InvalidOperationException("Could not retrieve a valid operation id for the PUT (cluster create) operation.");
+                    }
+
+                    // Wait for the operation specified by the request id to complete (succeed or fail).
+                    TimeSpan interval = TimeSpan.FromSeconds(1);
+                    TimeSpan timeout = TimeSpan.FromMinutes(5);
+                    await this.WaitForRdfeOperationToComplete(operationId, interval, timeout, Context.CancellationToken);
+                }
             }
             catch (InvalidExpectedStatusCodeException iEx)
             {
@@ -806,6 +822,15 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
                 string content = iEx.Response.Content != null ? iEx.Response.Content.ReadAsStringAsync().Result : string.Empty;
                 throw new HttpLayerException(iEx.ReceivedStatusCode, content);
             }
+        }
+
+        /// <inheritdoc />
+        public async Task<Data.Rdfe.Operation> GetRdfeOperationStatus(Guid operationId)
+        {
+            return await this.rdfeClustersRestClient.GetRdfeOperationStatus(
+                    this.credentials.SubscriptionId.ToString(),
+                    operationId.ToString(),
+                    this.Context.CancellationToken);
         }
 
         private static UserChangeRequestOperationStatus ConvertOperationStatusToUserChangeOperationState(string operationStatus)

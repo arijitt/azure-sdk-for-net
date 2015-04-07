@@ -66,7 +66,7 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.RestCl
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(72)]
-        public virtual Task<Operation> GetOperationStatus(string subscriptionId, string operationId, CancellationToken cancellationToken)
+        public virtual Task<Operation> GetRdfeOperationStatus(string subscriptionId, string operationId, CancellationToken cancellationToken)
         {
             return ((Task<Operation>)(base.CreateAndInvokeRestRequestForParentMethodAsync<Operation>(subscriptionId, operationId, cancellationToken)));
         }

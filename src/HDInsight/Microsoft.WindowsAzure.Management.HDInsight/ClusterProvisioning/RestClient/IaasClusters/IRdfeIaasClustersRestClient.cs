@@ -65,6 +65,6 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.RestCl
         [HttpRestInvoke("GET", "{subscriptionId}/operations/{operationId}")]
         [ExpectedStatusCodeValidator(new[] { HttpStatusCode.OK, HttpStatusCode.Accepted })]
         [CustomHeader("x-ms-version", "2014-09-01")]
-        Task<Operation> GetOperationStatus(string subscriptionId, string operationId, CancellationToken cancellationToken);
+        Task<Operation> GetRdfeOperationStatus(string subscriptionId, string operationId, CancellationToken cancellationToken);
     }
 }

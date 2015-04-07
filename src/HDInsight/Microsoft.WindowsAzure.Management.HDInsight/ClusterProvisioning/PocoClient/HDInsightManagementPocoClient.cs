@@ -269,6 +269,13 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
             return responseObject.Data;
         }
 
+        /// <inheritdoc />
+        public async Task<Data.Rdfe.Operation> GetRdfeOperationStatus(Guid operationId)
+        {
+            throw new NotImplementedException();
+        }
+
+
         private bool HasClusterCreateCapability(IEnumerable<KeyValuePair<string, string>> capabilities)
         {
             return capabilities.Any(capability => capability.Key == ClusterCrudCapabilitityName);
