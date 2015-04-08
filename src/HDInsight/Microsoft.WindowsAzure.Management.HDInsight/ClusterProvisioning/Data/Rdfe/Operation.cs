@@ -8,16 +8,16 @@
     internal class Operation : IExtensibleDataObject
     {
         [DataMember(Name = "ID", EmitDefaultValue = false)]
-        public string OperationId { get; set; }
+        public string OperationId { get; private set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Status { get; set; }
+        public string Status { get; private set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public HttpStatusCode HttpStatusCode { get; set; }
+        public HttpStatusCode HttpStatusCode { get; private set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public Error Error { get; set; }
+        public Error Error { get; private set; }
 
         public ExtensionDataObject ExtensionData { get; set; }
     }
@@ -26,10 +26,10 @@
     internal class Error : IExtensibleDataObject
     {
         [DataMember(EmitDefaultValue = false)]
-        public string Code { get; set; }
+        public string Code { get; private set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
         public ExtensionDataObject ExtensionData { get; set; }
     }
