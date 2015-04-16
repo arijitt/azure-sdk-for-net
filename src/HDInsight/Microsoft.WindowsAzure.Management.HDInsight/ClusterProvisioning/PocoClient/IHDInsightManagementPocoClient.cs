@@ -19,6 +19,7 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.WindowsAzure.Management.HDInsight.Logging;
+    using Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.Data.Rdfe;
 
     /// <summary>
     /// Provides an object oriented abstraction over the HDInsight management REST client.
@@ -230,5 +231,12 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.PocoCl
         /// <param name="operationId">The Id of the operation to wait for.</param>
         /// <returns>A status object for the operation.</returns>
         Task<UserChangeRequestStatus> GetStatus(string dnsName, string location, Guid operationId);
+
+        /// <summary>
+        /// Queries status of an RDFE operation.
+        /// </summary>
+        /// <param name="operationId">The Id of the operation to wait for.</param>
+        /// <returns>A status object for the operation.</returns>
+        Task<Operation> GetRdfeOperationStatus(Guid operationId);
     }
 }
