@@ -108,6 +108,7 @@
     <Compile Include="HadoopClientTests\RemoteHadoopPocoClient.cs" />
     <Compile Include="Json\JsonParserTests.cs" />
     <Compile Include="HadoopClientTests\TimothyTests.cs" />
+    <Compile Include="MiscellaneousTests\MiscellaneousTests.cs" />
     <Compile Include="ProcDetails\SerializerTest.cs" />
     <Compile Include="HadoopClientTests\ApiSecurityPocoClientTests.cs" />
     <Compile Include="HadoopClientTests\PayloadConverterTests.cs" />
