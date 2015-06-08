@@ -193,7 +193,7 @@
     <AzurePassword>thisisthePassword1!</AzurePassword>
     <HadoopUserName>username</HadoopUserName>
     <AlternativeEnvironment>
-      <Endpoint>https://umapi.rdfetest.dnsdemo4.com:8443</Endpoint>
+      <Endpoint>https://altenv.test.dnsdemo4.com:8443</Endpoint>
       <Namespace>hadoopservicesnightly</Namespace>
       <SubscriptionId>4e36d3c9-283e-4e42-9b9b-132800a239ac</SubscriptionId>
     </AlternativeEnvironment>
