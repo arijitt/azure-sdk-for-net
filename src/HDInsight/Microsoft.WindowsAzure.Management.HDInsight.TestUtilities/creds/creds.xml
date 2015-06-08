@@ -209,24 +209,6 @@
         <Container>deployment1</Container>
       </StorageAccountCredentials>
     </AdditionalStorageAccounts>
-     <!--<HiveStores>
-          <MetastoreCredentials>
-            <Description>HiveDB1</Description>
-            <SqlServer>p9ltxwbw4s.database.windows.net</SqlServer>
-            <Database>tstsql00hdxcibld02-wus-hive10</Database>
-            <UserName>username</UserName>
-            <Password>thisisthePassword1</Password>
-          </MetastoreCredentials>
-        </HiveStores>
-        <OozieStores>
-          <MetastoreCredentials>
-            <Description>OOzieDB1</Description>
-            <SqlServer>p9ltxwbw4s.database.windows.net</SqlServer>
-            <Database>tstsql00hdxcibld02-wus-oozie10</Database>
-            <UserName>username</UserName>
-            <Password>thisisthePassword1</Password>
-          </MetastoreCredentials>
-        </OozieStores>-->
   </AzureTestCredentials>
 </ArrayOfAzureTestCredentials>
 
