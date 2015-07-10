@@ -390,7 +390,7 @@
   PRIVATE_FEED_USER_NAME: User name for access to the feed
   PRIVATE_FEED_PASSWORD: Password for access to the feed
   -->
-  <Target Name="ForceRestorePackages" Condition=" '$(GenerateHydraSpecs)' == 'true' ">
+<!--   <Target Name="ForceRestorePackages" Condition=" '$(GenerateHydraSpecs)' == 'true' ">
     <PropertyGroup>
       <NuGetRestoreConfigFile>$(MSBuildProjectDirectory)\restore.config</NuGetRestoreConfigFile>
       <NuGetRestoreConfigSwitch>-ConfigFile &quot;$(NuGetRestoreConfigFile)&quot;</NuGetRestoreConfigSwitch>
@@ -401,7 +401,7 @@
     <Error Text="The code generation target ForceRestorePackages requires an environment variable: PRIVATE_FEED_PASSWORD. Please see libraries.msbuild for more information." Condition=" '$(PRIVATE_FEED_PASSWORD)'=='' " />
 
     <!-- Create config for user name and password for private feed access -->
-    <Delete Files="$(NuGetRestoreConfigFile)" />
+<!--     <Delete Files="$(NuGetRestoreConfigFile)" />
     <WriteLinesToFile
       File="$(NuGetRestoreConfigFile)"
       Lines="&lt;configuration&gt;&lt;/configuration&gt;"
@@ -411,12 +411,12 @@
     <Exec Command="$(NuGetCommand) sources Update -Name Hydra -UserName $(PRIVATE_FEED_USER_NAME) -Password &quot;$(PRIVATE_FEED_PASSWORD)&quot; $(NuGetRestoreConfigSwitch)"
           EchoOff="true" />
     <Exec Command="$(NuGetCommand) restore $(CommonSolution) $(NuGetRestoreConfigSwitch)" ContinueOnError="ErrorAndContinue" />
-    <Exec Command="$(NuGetCommand) restore $(ManagementLibrariesSolution) $(NuGetRestoreConfigSwitch)" ContinueOnError="ErrorAndContinue" />
+    <Exec Command="$(NuGetCommand) restore $(ManagementLibrariesSolution) $(NuGetRestoreConfigSwitch)" ContinueOnError="ErrorAndContinue" /> -->
 
     <!-- delete config file, don't want to leave passwords hanging around on the build server file system -->
-    <Delete Files="$(NuGetRestoreConfigFile)" />
-  </Target>
-
+<!--     <Delete Files="$(NuGetRestoreConfigFile)" />
+  </Target> -->
+ -->
   <!--
   Force nuget package restore so that packages that include .targets files
   don't need to be checked into source control. Skips all private packages.
