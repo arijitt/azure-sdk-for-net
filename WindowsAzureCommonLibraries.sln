@@ -51,12 +51,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tracing.Log4Net", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration.Test", "src\Configuration.Test\Configuration.Test.csproj", "{0645E75E-9C0B-47EE-B5A2-239286E1DED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.WindowsStore", "src\Common.WindowsStore\Common.WindowsStore.csproj", "{65C1AFA4-9F6A-4105-B28C-AA1B95C17494}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.WindowsPhone", "src\Common.WindowsPhone\Common.WindowsPhone.csproj", "{997EADB9-7FFE-42FF-AA2F-D5F90F39B86D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.WindowsPhone81", "src\Common.WindowsPhone81\Common.WindowsPhone81.csproj", "{0B661D48-49D3-4D23-8E51-E528C80C8816}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
