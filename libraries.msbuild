@@ -416,7 +416,7 @@
     <!-- delete config file, don't want to leave passwords hanging around on the build server file system -->
 <!--     <Delete Files="$(NuGetRestoreConfigFile)" />
   </Target> -->
- -->
+
   <!--
   Force nuget package restore so that packages that include .targets files
   don't need to be checked into source control. Skips all private packages.
