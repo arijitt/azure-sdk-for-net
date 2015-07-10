@@ -400,7 +400,7 @@
     <Error Text="The code generation target ForceRestorePackages requires an environment variable: PRIVATE_FEED_USER_NAME. Please see libraries.msbuild for more information." Condition=" '$(PRIVATE_FEED_USER_NAME)'=='' " />
     <Error Text="The code generation target ForceRestorePackages requires an environment variable: PRIVATE_FEED_PASSWORD. Please see libraries.msbuild for more information." Condition=" '$(PRIVATE_FEED_PASSWORD)'=='' " />
 
-    <!-- Create config for user name and password for private feed access -->
+    Create config for user name and password for private feed access -->
 <!--     <Delete Files="$(NuGetRestoreConfigFile)" />
     <WriteLinesToFile
       File="$(NuGetRestoreConfigFile)"
@@ -415,7 +415,7 @@
 
     <!-- delete config file, don't want to leave passwords hanging around on the build server file system -->
 <!--     <Delete Files="$(NuGetRestoreConfigFile)" />
-  </Target> -->
+</Target> -->
 
   <!--
   Force nuget package restore so that packages that include .targets files
