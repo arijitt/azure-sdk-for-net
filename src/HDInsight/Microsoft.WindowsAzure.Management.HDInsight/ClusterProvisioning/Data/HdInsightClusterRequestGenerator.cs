@@ -386,7 +386,7 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.Data
             }
         }
 
-        private static void AddConfigActionComponent(CustomActionComponent configAction, HDInsight.ClusterCreateParametersV2 inputs, ClusterRole headnodeRole, ClusterRole workernodeRole, ClusterRole zookeperRole)
+        private static void AddConfigActionComponent(CustomActionComponent configAction, HDInsight.ClusterCreateParametersV2 inputs, ClusterRole headnodeRole, ClusterRole workernodeRole, ClusterRole zookeeperRole)
         {
             configAction.CustomActions = new CustomActionList();
 
@@ -425,11 +425,11 @@ namespace Microsoft.WindowsAzure.Management.HDInsight.ClusterProvisioning.Data
                     {
                         newConfigAction.ClusterRoleCollection.Add(workernodeRole);
                     }
-                    else if (clusterRoleType == ClusterNodeType.ZookeperNode)
+                    else if (clusterRoleType == ClusterNodeType.ZookeeperNode)
                     {
                         if (inputs.ClusterType.Equals(ClusterType.HBase) || inputs.ClusterType.Equals(ClusterType.Storm))
                         {
-                            newConfigAction.ClusterRoleCollection.Add(zookeperRole);
+                            newConfigAction.ClusterRoleCollection.Add(zookeeperRole);
                         }
                         else
                         {
